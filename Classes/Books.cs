@@ -61,6 +61,20 @@ namespace GridViewEditDemo.Classes
             public string Title { get; set; }
             public BookCategory Category { get; set; }
             public DateTime Date { get; set; }
+            private bool IsDeleted { get; set; }
+
+            public bool Save()
+            {
+                //save the individual book here...
+
+                return true; //or false if the save fails
+            }
+
+            public bool Delete()
+            {
+                IsDeleted = true;
+                return Save();
+            }
         }
 
 
