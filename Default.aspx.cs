@@ -119,8 +119,11 @@ namespace GridViewEditDemo
             book.Category = Classes.Books.GetBookCategories().Where(x => x.ID == Convert.ToInt32(dl1.SelectedValue)).FirstOrDefault();
             book.Date = date;
 
-            //save
+            //save the list
             Classes.Data.SaveMyBooks(MyBookList);
+
+            //OR save the individual book
+            book.Save();
 
             gridview.EditIndex = -1;
             BuildGridView(gridview);
@@ -134,9 +137,13 @@ namespace GridViewEditDemo
             //get the id of the book from the row with DataKeyNames
             int id = Convert.ToInt32(gridview.DataKeys[e.RowIndex].Values[0]);
 
-            //remove the book from the list and save
+            //remove the book from the list en then save the list
             MyBookList.RemoveAll(x => x.ID == id);
             Classes.Data.SaveMyBooks(MyBookList);
+
+            //OR save the individual book
+            var book = MyBookList.Where(x => x.ID == id).FirstOrDefault();
+            book.Delete();
 
             gridview.EditIndex = -1;
             BuildGridView(gridview);
