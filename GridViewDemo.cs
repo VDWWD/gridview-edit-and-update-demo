@@ -126,15 +126,7 @@ namespace GridViewEditDemo
             };
         }
 
-
-        public class BookContainer
-        {
-            public int count { get; set; }
-            public Guid guid { get; set; }
-            public List<Book> books { get; set; }
-        }
-
-
+        
         public class Book
         {
             public int ID { get; set; }
