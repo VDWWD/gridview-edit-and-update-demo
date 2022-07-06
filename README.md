@@ -1,4 +1,4 @@
-# GridView Edit & Update Demo
+# GridView Edit & Update Demo, with Sorting
 
 Basic tutorial about how to edit, update and delete items in a WebForms GridView. The demo also uses UpdatePanel and jQuery DataTables.
 
