@@ -77,7 +77,7 @@
                                 EmptyDataRowStyle-CssClass="font-weight-bold"
                                 DataKeyNames="ID"
                                 AllowSorting="True"
-                                ItemType="GridViewEditDemo.Classes.GridViewDemo.Book"
+                                ItemType="GridViewEditDemo.GridViewDemo.Book"
                                 OnRowDataBound="GridView_RowDataBound"
                                 OnRowEditing="GridView_RowEditing"
                                 OnRowCancelingEdit="GridView_RowCancelingEdit"
@@ -209,6 +209,17 @@
                                 OnRowDataBound="GridView_RowDataBound"
                                 EnableViewState="false">
                             </asp:GridView>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col text-center p-3 pt-4">
+
+                            <div class="p-3 bg-white d-inline-block">
+                                <a href="https://www.vanderwaal.eu" target="_blank">
+                                    <img src="/images/vdwwd.png" alt="van der Waal Webdesign" title="van der Waal Webdesign" />
+                                </a>
+                            </div>
 
                         </div>
                     </div>

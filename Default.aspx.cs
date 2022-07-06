@@ -7,7 +7,7 @@ namespace GridViewEditDemo
 {
     public partial class Default : System.Web.UI.Page
     {
-        public List<Classes.GridViewDemo.Book> MyBookList;
+        public List<GridViewDemo.Book> MyBookList;
         public SortDirection SortDirection;
         public string SortColumn;
 
@@ -26,17 +26,17 @@ namespace GridViewEditDemo
             //check if there is a list of books for this user
             if (Session["booklist"] != null)
             {
-                MyBookList = (List<Classes.GridViewDemo.Book>)Session["booklist"];
+                MyBookList = (List<GridViewDemo.Book>)Session["booklist"];
             }
 
             //if there is no list or it is empty create one
             if (MyBookList == null || !MyBookList.Any())
             {
-                MyBookList = Classes.GridViewDemo.GetBooks();
+                MyBookList = GridViewDemo.GetBooks();
             }
 
             //sort the list of books
-            MyBookList = Classes.GridViewDemo.SortBooks(MyBookList, SortColumn, SortDirection);
+            MyBookList = GridViewDemo.SortBooks(MyBookList, SortColumn, SortDirection);
 
             //put the list in a session (normally MyBookList would just be a database table, not a list in a session)
             Session["booklist"] = MyBookList;
@@ -67,7 +67,7 @@ namespace GridViewEditDemo
             //the categories gridview
             if (gridview.ID == "GridView2")
             {
-                GridView2.DataSource = Classes.GridViewDemo.GetBookCategories();
+                GridView2.DataSource = GridViewDemo.GetBookCategories();
                 GridView2.DataBind();
             }
         }
@@ -89,13 +89,13 @@ namespace GridViewEditDemo
                 var dl1 = (DropDownList)e.Row.FindControl("DropDownList1");
 
                 //bind the categories to the dropdowlist
-                dl1.DataSource = Classes.GridViewDemo.GetBookCategories();
+                dl1.DataSource = GridViewDemo.GetBookCategories();
                 dl1.DataTextField = "Name";
                 dl1.DataValueField = "ID";
                 dl1.DataBind();
 
                 //cast the row's dataitem back to the class Book
-                var book = (Classes.GridViewDemo.Book)e.Row.DataItem;
+                var book = (GridViewDemo.Book)e.Row.DataItem;
 
                 //set the values of the controle
                 tb1.Text = book.Title;
@@ -143,7 +143,7 @@ namespace GridViewEditDemo
 
             //set the values from the controls to the book
             book.Title = tb1.Text.Trim();
-            book.Category = Classes.GridViewDemo.GetBookCategories().Where(x => x.ID == Convert.ToInt32(dl1.SelectedValue)).FirstOrDefault();
+            book.Category = GridViewDemo.GetBookCategories().Where(x => x.ID == Convert.ToInt32(dl1.SelectedValue)).FirstOrDefault();
             book.Date = date;
 
             gridview.EditIndex = -1;
@@ -184,7 +184,7 @@ namespace GridViewEditDemo
             Session["col_" + GridView1.ID] = e.SortExpression;
 
             //re-sort the list of books
-            MyBookList = Classes.GridViewDemo.SortBooks(MyBookList, e.SortExpression, SortDirection);
+            MyBookList = GridViewDemo.SortBooks(MyBookList, e.SortExpression, SortDirection);
 
             BuildGridView(gridview);
 
