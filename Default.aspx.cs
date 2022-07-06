@@ -7,12 +7,39 @@ namespace GridViewEditDemo
 {
     public partial class Default : System.Web.UI.Page
     {
-        public List<Classes.Books.Book> MyBookList;
+        public List<Classes.GridViewDemo.Book> MyBookList;
+        public SortDirection SortDirection;
+        public string SortColumn;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            //load your books list from your own source like a database
-            MyBookList = Classes.Data.GetMyBooks();
+            //get the gridview sort direction and column from the session
+            if (Session["dir_" + GridView1.ID] != null)
+            {
+                SortDirection = (SortDirection)Session["dir_" + GridView1.ID];
+            }
+            if (Session["col_" + GridView1.ID] != null)
+            {
+                SortColumn = (string)Session["col_" + GridView1.ID];
+            }
+
+            //check if there is a list of books for this user
+            if (Session["booklist"] != null)
+            {
+                MyBookList = (List<Classes.GridViewDemo.Book>)Session["booklist"];
+            }
+
+            //if there is no list or it is empty create one
+            if (MyBookList == null || !MyBookList.Any())
+            {
+                MyBookList = Classes.GridViewDemo.GetBooks();
+            }
+
+            //sort the list of books
+            MyBookList = Classes.GridViewDemo.SortBooks(MyBookList, SortColumn, SortDirection);
+
+            //put the list in a session (normally MyBookList would just be a database table, not a list in a session)
+            Session["booklist"] = MyBookList;
 
             //create the editable gridview with the postback check
             if (!IsPostBack)
@@ -40,7 +67,7 @@ namespace GridViewEditDemo
             //the categories gridview
             if (gridview.ID == "GridView2")
             {
-                GridView2.DataSource = Classes.Books.GetBookCategories();
+                GridView2.DataSource = Classes.GridViewDemo.GetBookCategories();
                 GridView2.DataBind();
             }
         }
@@ -62,13 +89,13 @@ namespace GridViewEditDemo
                 var dl1 = (DropDownList)e.Row.FindControl("DropDownList1");
 
                 //bind the categories to the dropdowlist
-                dl1.DataSource = Classes.Books.GetBookCategories();
+                dl1.DataSource = Classes.GridViewDemo.GetBookCategories();
                 dl1.DataTextField = "Name";
                 dl1.DataValueField = "ID";
                 dl1.DataBind();
 
                 //cast the row's dataitem back to the class Book
-                var book = (Classes.Books.Book)e.Row.DataItem;
+                var book = (Classes.GridViewDemo.Book)e.Row.DataItem;
 
                 //set the values of the controle
                 tb1.Text = book.Title;
@@ -116,14 +143,8 @@ namespace GridViewEditDemo
 
             //set the values from the controls to the book
             book.Title = tb1.Text.Trim();
-            book.Category = Classes.Books.GetBookCategories().Where(x => x.ID == Convert.ToInt32(dl1.SelectedValue)).FirstOrDefault();
+            book.Category = Classes.GridViewDemo.GetBookCategories().Where(x => x.ID == Convert.ToInt32(dl1.SelectedValue)).FirstOrDefault();
             book.Date = date;
-
-            //save the list
-            Classes.Data.SaveMyBooks(MyBookList);
-
-            //OR save the individual book
-            book.Save();
 
             gridview.EditIndex = -1;
             BuildGridView(gridview);
@@ -137,16 +158,50 @@ namespace GridViewEditDemo
             //get the id of the book from the row with DataKeyNames
             int id = Convert.ToInt32(gridview.DataKeys[e.RowIndex].Values[0]);
 
-            //remove the book from the list en then save the list
+            //remove the book from the list and save
             MyBookList.RemoveAll(x => x.ID == id);
-            Classes.Data.SaveMyBooks(MyBookList);
-
-            //OR save the individual book
-            var book = MyBookList.Where(x => x.ID == id).FirstOrDefault();
-            book.Delete();
 
             gridview.EditIndex = -1;
             BuildGridView(gridview);
+        }
+
+
+        protected void GridView_Sorting(object sender, GridViewSortEventArgs e)
+        {
+            var gridview = (GridView)sender;
+
+            //reverse the sort direction
+            SortDirection = SortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
+
+            //if the column is not the one sorted previously then always start ascending
+            if (Session["col_" + GridView1.ID] != null && Session["col_" + GridView1.ID].ToString() != e.SortExpression)
+            {
+                SortDirection = SortDirection.Ascending;
+            }
+
+            //put the solumn and direction in the session
+            Session["dir_" + GridView1.ID] = SortDirection;
+            Session["col_" + GridView1.ID] = e.SortExpression;
+
+            //re-sort the list of books
+            MyBookList = Classes.GridViewDemo.SortBooks(MyBookList, e.SortExpression, SortDirection);
+
+            BuildGridView(gridview);
+
+            //add sort direction arrows to the clicked header cell
+            for (int i = 1; i < gridview.HeaderRow.Cells.Count - 1; i++)
+            {
+                var linkbutton = (LinkButton)gridview.HeaderRow.FindControl("LinkButton" + i);
+
+                if (linkbutton.Text == e.SortExpression && SortDirection == SortDirection.Descending)
+                {
+                    linkbutton.Text += "&nbsp; &uarr;";
+                }
+                else if (linkbutton.Text == e.SortExpression)
+                {
+                    linkbutton.Text += "&nbsp; &darr;";
+                }
+            }
         }
     }
 }

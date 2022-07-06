@@ -35,6 +35,12 @@
             border-top: 0px;
             border-bottom: 1px solid #808080 !important;
         }
+
+            .table th a {
+                color: black;
+                /* by making the header link a block you can click the entire cell */
+                display: block;
+            }
     </style>
 
 </head>
@@ -70,23 +76,30 @@
                                 EmptyDataText="No books found."
                                 EmptyDataRowStyle-CssClass="font-weight-bold"
                                 DataKeyNames="ID"
-                                ItemType="GridViewEditDemo.Classes.Books.Book"
+                                AllowSorting="True"
+                                ItemType="GridViewEditDemo.Classes.GridViewDemo.Book"
                                 OnRowDataBound="GridView_RowDataBound"
                                 OnRowEditing="GridView_RowEditing"
                                 OnRowCancelingEdit="GridView_RowCancelingEdit"
                                 OnRowUpdating="GridView_RowUpdating"
-                                OnRowDeleting="GridView_RowDeleting">
+                                OnRowDeleting="GridView_RowDeleting"
+                                OnSorting="GridView_Sorting">
                                 <Columns>
                                     <asp:TemplateField HeaderText="ID">
+                                        <HeaderTemplate>
+                                            <asp:LinkButton ID="LinkButton1" runat="server" Text="ID" CommandName="Sort" CommandArgument="ID"></asp:LinkButton>
+                                        </HeaderTemplate>
                                         <ItemTemplate>
 
                                             <!-- You can use "Item" to access properties because the GridView is Strongly Typed (set the ItemType of the GridView) -->
 
                                             <%# Item.ID %>
-
                                         </ItemTemplate>
                                     </asp:TemplateField>
                                     <asp:TemplateField HeaderText="Title">
+                                        <HeaderTemplate>
+                                            <asp:LinkButton ID="LinkButton2" runat="server" Text="Title" CommandName="Sort" CommandArgument="Title"></asp:LinkButton>
+                                        </HeaderTemplate>
                                         <ItemTemplate>
 
                                             <%# Item.Title %>
@@ -104,6 +117,9 @@
                                         </EditItemTemplate>
                                     </asp:TemplateField>
                                     <asp:TemplateField HeaderText="Category">
+                                        <HeaderTemplate>
+                                            <asp:LinkButton ID="LinkButton3" runat="server" Text="Category" CommandName="Sort" CommandArgument="Category"></asp:LinkButton>
+                                        </HeaderTemplate>
                                         <ItemTemplate>
 
                                             <%# Item.Category.Name %>
@@ -121,6 +137,9 @@
                                         </EditItemTemplate>
                                     </asp:TemplateField>
                                     <asp:TemplateField HeaderText="Date">
+                                        <HeaderTemplate>
+                                            <asp:LinkButton ID="LinkButton4" runat="server" Text="Date" CommandName="Sort" CommandArgument="Date"></asp:LinkButton>
+                                        </HeaderTemplate>
                                         <ItemTemplate>
 
                                             <%# Item.Date.ToLongDateString() %>
@@ -157,9 +176,9 @@
 
                                             <!-- do not change the CommandName -->
 
-                                            <asp:LinkButton runat="server" CommandName="Delete" CssClass="btn btn-danger" 
+                                            <asp:LinkButton runat="server" CommandName="Delete" CssClass="btn btn-danger"
                                                 OnClientClick='<%# "return confirm(\u0027Are you sure you want to delete the book \"" + Item.Title + "\"?\u0027)" %>'>
-                                                Delete
+                                                        Delete
                                             </asp:LinkButton>
 
                                         </ItemTemplate>
@@ -171,7 +190,6 @@
 
                                         </EditItemTemplate>
                                     </asp:TemplateField>
-
                                 </Columns>
                             </asp:GridView>
 
@@ -187,7 +205,7 @@
                                 CssClass="table table-striped w-50 datatable"
                                 BackColor="White"
                                 AutoGenerateColumns="true"
-                                ItemType="GridViewEditDemo.Classes.Books.BookCategory"
+                                ItemType="GridViewEditDemo.Classes.GridViewDemo.BookCategory"
                                 OnRowDataBound="GridView_RowDataBound"
                                 EnableViewState="false">
                             </asp:GridView>
@@ -210,6 +228,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.0-RC3/js/bootstrap-datepicker.min.js"></script>
 
     <script type="text/javascript">
+        var $datatable;
         var prm = Sys.WebForms.PageRequestManager.getInstance();
 
         //this code is executed after the UpdatePanel is finished loading. You will need to trigger all scripts again that have bindings to DOM elements within the UpdatePanel.
@@ -226,7 +245,13 @@
         //datatables is not used for the editable gridview because when you go in edit mode the sortorder changes,
         //and the row the user clicked to edit may change position or dissapear entirely when using paging.
         function InitDataTable() {
-            $('.datatable').DataTable({
+
+            //if the datatable exists, destroy it first
+            if ($datatable != null) {
+                $datatable.destroy();
+            }
+
+            $datatable = $('.datatable').DataTable({
                 'stateSave': true, //to make sure the current sorting survives across postbacks
                 'searching': false,
                 'paging': false,
